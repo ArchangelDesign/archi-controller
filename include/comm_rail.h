@@ -14,6 +14,8 @@ void comm_process_incoming_buffer();
 void comm_send_message(uint8_t* data, uint16_t size);
 void comm_rail_loop();
 void comm_send_pv_update(int16_t temperature);
+void comm_send_sp_update(int16_t temperature);
+void comm_send_text_packet_int16(uint8_t high_hyle, uint8_t low_byte, int16_t packet);
 
 void comm_init()
 {
@@ -53,20 +55,36 @@ void comm_send_message(uint8_t* data, uint16_t size)
     Serial.write(d, size);
 }
 
-void comm_send_pv_update(int16_t temperature)
+void test_checksum()
 {
-    uint8_t packet[9] = { STX, P, V, DOT, DOT, DOT, DOT, ETX, 0x00 };
+    uint8_t bin_packet[8] = { STX, P, V, 0x32, 0x34, 0x2E, ETX, 0x00 };
+    comm_send_message(bin_packet, 8);
+}
+
+void comm_send_text_packet_int16(uint8_t high_hyle, uint8_t low_byte, int16_t packet)
+{
+    uint8_t bin_packet[9] = { STX, high_hyle, low_byte, DOT, DOT, DOT, DOT, ETX, 0x00 };
     uint8_t index = 3;
     char buf[5];
     memset(buf, 0, 5);
-    itoa(temperature, buf, 10);
+    itoa(packet, buf, 10);
     for (int i = 0; i < 5; i++) {
         if (buf[i] > 0) {
-            packet[index] = buf[i];
+            bin_packet[index] = buf[i];
             index++;
         }
     }
-    comm_send_message(packet, 9);
+    comm_send_message(bin_packet, 9);
+}
+
+void comm_send_pv_update(int16_t temperature)
+{
+    comm_send_text_packet_int16(P, V, temperature);
+}
+
+void comm_send_sp_update(int16_t temperature)
+{
+    comm_send_text_packet_int16(S, P, temperature);
 }
 
 void comm_process_incoming_buffer()

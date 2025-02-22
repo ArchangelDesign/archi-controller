@@ -1,6 +1,7 @@
 #pragma once
 
 #define P 0x50
+#define S 0x53
 #define V 0x56
 #define STX 0x02 // Start of Text
 #define ETX 0x03 // End of text
