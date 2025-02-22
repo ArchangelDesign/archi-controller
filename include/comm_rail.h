@@ -16,6 +16,7 @@ void comm_rail_loop();
 void comm_send_pv_update(int16_t temperature);
 void comm_send_sp_update(int16_t temperature);
 void comm_send_text_packet_int16(uint8_t high_hyle, uint8_t low_byte, int16_t packet);
+void comm_send_op_update(uint8_t power);
 
 void comm_init()
 {
@@ -48,17 +49,11 @@ void comm_send_message(uint8_t* data, uint16_t size)
 {
     uint8_t *d = data;
     uint8_t bcc = 0;
-    for (int i = 1; i < size - 1; i ++) {
+    for (unsigned int i = 1; i < size - 1; i ++) {
         bcc ^= data[i];
     }
     d[size - 1] = bcc;
     Serial.write(d, size);
-}
-
-void test_checksum()
-{
-    uint8_t bin_packet[8] = { STX, P, V, 0x32, 0x34, 0x2E, ETX, 0x00 };
-    comm_send_message(bin_packet, 8);
 }
 
 void comm_send_text_packet_int16(uint8_t high_hyle, uint8_t low_byte, int16_t packet)
@@ -87,6 +82,11 @@ void comm_send_sp_update(int16_t temperature)
     comm_send_text_packet_int16(S, P, temperature);
 }
 
+void comm_send_op_update(uint8_t power)
+{
+    comm_send_text_packet_int16(O, P, power);
+}
+
 void comm_process_incoming_buffer()
 {
     if (cr_receive_buffer_size == 0) {
@@ -96,7 +96,4 @@ void comm_process_incoming_buffer()
     if (cr_receive_buffer_size >= MAX_BUFF_SIZE) {
         cr_receive_buffer_size = 0;
     }
-
-    msm_current_temperature++;
-
 }

@@ -12,9 +12,11 @@ void setup() {
     comm_init();
     heater_init();
     process_timers.every(3000, timer_process_update);
+    process_timers.every(HEATER_PERIOD, timer_heater_control);
 }
 
 void loop() {
     comm_rail_loop();
+    heater_tick();
     process_timers.tick();
 }
