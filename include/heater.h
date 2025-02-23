@@ -20,13 +20,13 @@ void heater_tick() {
     t.tick();
 }
 
-bool heater_turn_on() {
+bool heater_zone_a_turn_on() {
     digitalWrite(ZONE_A_PIN, HIGH);
     digitalWrite(LED_BUILTIN, HIGH);
     return false;
 }
 
-bool heater_turn_off(void *) {
+bool heater_zone_a_turn_off(void *) {
     digitalWrite(ZONE_A_PIN, LOW);
     digitalWrite(LED_BUILTIN, LOW);
     return false;
@@ -34,8 +34,8 @@ bool heater_turn_off(void *) {
 
 bool timer_heater_control(void *)
 {
-    heater_turn_on();
+    heater_zone_a_turn_on();
     uint16_t turn_off_time = floor((msm_zone_a_output_power * HEATER_PERIOD) / 100);
-    t.in(turn_off_time - 1, heater_turn_off);
+    t.in(turn_off_time - 1, heater_zone_a_turn_off);
     return true;
 }

@@ -87,10 +87,28 @@ void comm_send_op_update(uint8_t power)
     comm_send_text_packet_int16(O, P, power);
 }
 
+void process_enquiry()
+{
+
+}
+
+void process_command()
+{
+
+}
+
 void comm_process_incoming_buffer()
 {
     if (cr_receive_buffer_size == 0) {
         return;
+    }
+
+    if (has_enq_byte(cr_receive_buffer, cr_receive_buffer_size)) {
+        process_enquiry();
+    }
+
+    if (has_stx_byte(cr_receive_buffer, cr_receive_buffer_size) && has_etx_byte(cr_receive_buffer, cr_receive_buffer_size)) {
+        process_command();
     }
 
     if (cr_receive_buffer_size >= MAX_BUFF_SIZE) {
