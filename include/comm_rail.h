@@ -56,9 +56,9 @@ void comm_send_message(uint8_t* data, uint16_t size)
     Serial.write(d, size);
 }
 
-void comm_send_text_packet_int16(uint8_t high_hyle, uint8_t low_byte, int16_t packet)
+void comm_send_text_packet_int16(uint8_t high_byte, uint8_t low_byte, int16_t packet)
 {
-    uint8_t bin_packet[9] = { STX, high_hyle, low_byte, DOT, DOT, DOT, DOT, ETX, 0x00 };
+    uint8_t bin_packet[9] = { STX, high_byte, low_byte, DOT, DOT, DOT, DOT, ETX, 0x00 };
     uint8_t index = 3;
     char buf[5];
     memset(buf, 0, 5);
@@ -70,6 +70,21 @@ void comm_send_text_packet_int16(uint8_t high_hyle, uint8_t low_byte, int16_t pa
         }
     }
     comm_send_message(bin_packet, 9);
+}
+
+void comm_send_text_packet_double(uint8_t high_byte, uint8_t low_byte, double packet)
+{
+    char buf[5];
+    dtostrf(packet, 5, 2, buf);
+    uint8_t bin_packet[9] = { STX, high_byte, low_byte, ZERO, ZERO, ZERO, ZERO, ETX, 0x00 };
+    memcpy(&bin_packet[3], &buf, 4);
+
+    comm_send_message(bin_packet, 9);
+}
+
+void comm_send_ack()
+{
+    Serial.write((char*)ACK, 1);
 }
 
 void comm_send_pv_update(int16_t temperature)
@@ -87,9 +102,28 @@ void comm_send_op_update(uint8_t power)
     comm_send_text_packet_int16(O, P, power);
 }
 
+void comm_send_pid_p_update(double p)
+{
+    comm_send_text_packet_double(P, P, p);
+}
+
+void comm_send_pid_i_update(double i)
+{
+    comm_send_text_packet_double(P, I, i);
+}
+
+void comm_send_pid_d_update(double d)
+{
+    comm_send_text_packet_double(P, D, d);
+}
+
 void process_enquiry()
 {
-
+    uint8_t start = get_first_eot_index(cr_receive_buffer, cr_receive_buffer_size);
+    uint8_t end = get_first_enq_index(cr_receive_buffer, cr_receive_buffer_size);
+    // shift the buffer
+    memmove(&cr_receive_buffer[start], &cr_receive_buffer[end + 1], (cr_receive_buffer_size - (end + 1)) - start);
+    comm_send_ack();
 }
 
 void process_command()

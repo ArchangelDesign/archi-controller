@@ -3,6 +3,7 @@
 #include <Arduino.h>
 #include <arduino-timer.h>
 #include "measurements.h"
+#include "persistence.h"
 
 #ifdef USE_PID_V1
     #include "controller/pid.h"
@@ -45,7 +46,7 @@ bool heater_zone_a_turn_off(void *) {
 
 bool timer_heater_control(void *)
 {
-    if (msm_zone_a_output_power == 0) {
+    if (msm_zone_a_output_power == 0 || !msm_is_running) {
         heater_zone_a_turn_off(NULL);
         return true;
     }
