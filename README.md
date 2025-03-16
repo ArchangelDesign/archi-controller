@@ -5,9 +5,9 @@
 
 ## Protocol
 
-Updates from the machine (no request required)
+### Updates from the machine (no request required)
 
-### Current Temperature Update
+#### Current Temperature Update
 ```
 | STX | P | V | CHAR | CHAR | CHAR | CHAR | ETX | BCC |
 ```
