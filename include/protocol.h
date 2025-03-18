@@ -75,6 +75,32 @@ bool has_etx_byte(uint8_t *buffer, uint8_t size)
     return false;
 }
 
+/**
+ * Returns true if the buffer contains a full packet
+ */
+bool has_full_packet(uint8_t *buffer, uint8_t size)
+{
+    bool has_start = false;
+    bool has_end = false;
+    bool has_bcc = false;
+
+    for (uint8_t i = 0; i < size; i++) {
+        if (buffer[i] == ASCII_STX) {
+            has_start = true;
+        }
+        if (buffer[i] == ASCII_ETX) {
+            has_end = true;
+            // check for BCC
+            has_bcc = (i + 2) <= size;
+        }
+    }
+
+    return has_start && has_end && has_bcc;
+}
+
+/**
+ * Returns true if the buffer contains a single full packet, false otherwise.
+ */
 bool is_single_packet(uint8_t *buffer, uint8_t size)
 {
     uint8_t counter = 0;
@@ -84,7 +110,7 @@ bool is_single_packet(uint8_t *buffer, uint8_t size)
         }
     }
     if (counter > 1) {
-        return true;
+        return false;
     }
     counter = 0;
     for (uint8_t i = 0; i < size; i++) {
@@ -93,7 +119,7 @@ bool is_single_packet(uint8_t *buffer, uint8_t size)
         }
     }
     if (counter > 1) {
-        return true;
+        return false;
     }
     counter = 0;
     for (uint8_t i = 0; i < size; i++) {
@@ -102,10 +128,10 @@ bool is_single_packet(uint8_t *buffer, uint8_t size)
         }
     }
     if (counter > 1) {
-        return true;
+        return false;
     }
 
-    return false;
+    return true;
 }
 
 uint8_t get_first_eot_index(uint8_t buffer[], uint8_t size)

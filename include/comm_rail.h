@@ -180,7 +180,7 @@ void comm_process_incoming_buffer()
         process_enquiry();
     }
 
-    if (has_stx_byte(cr_receive_buffer, cr_receive_buffer_size) && has_etx_byte(cr_receive_buffer, cr_receive_buffer_size)) {
+    if (has_full_packet(cr_receive_buffer, cr_receive_buffer_size)) {
         process_command();
     }
 
