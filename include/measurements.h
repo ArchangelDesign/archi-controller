@@ -23,7 +23,11 @@
 
 int16_t msm_zone_a_current_temperature = 0;
 int16_t msm_zone_a_set_point = 0;
+int16_t msm_zone_a_target_set_point = 0;
 uint8_t msm_zone_a_output_power = 0;
+double msm_zone_a_ramp = 1;
+uint16_t msm_zone_a_hb = 5;
+
 
 // PID loop config, can be updated via comm rail
 double msm_p = 2.5, msm_i = 4.5, msm_d = 2;

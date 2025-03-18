@@ -48,14 +48,18 @@ bool is_pid_p_update_command(char *command);
 bool is_pid_i_update_command(char *command);
 bool is_pid_d_update_command(char *command);
 bool is_set_point_update_command(char *command);
+bool is_start_command(char *command);
+bool is_stop_command(char *commend);
+bool is_pause_command(char *command);
+bool is_ramp_update_command(char *command);
 
 bool process_comm_rail_command(uint8_t *buffer, uint8_t size)
 {
-    if (buffer[0] != EOT) {
+    if (buffer[0] != ASCII_EOT) {
         return false;
     }
 
-    if (buffer[size - 2] != ETX) {
+    if (buffer[size - 2] != ASCII_ETX) {
         return false;
     }
 
@@ -73,7 +77,7 @@ bool process_comm_rail_command(uint8_t *buffer, uint8_t size)
     }
 
     // @TODO: verify BCC
-    uint8_t bcc = buffer[size - 1];
+    // uint8_t bcc = buffer[size - 1];
 
     uint8_t message_size = get_message_size(buffer, size);
     char *message = new char[message_size];
@@ -123,7 +127,7 @@ bool process_command_from_master(char *command, char *value)
     }
 
     if (is_set_point_update_command(command)) {
-        msm_zone_a_set_point = atoi(value);
+        msm_zone_a_target_set_point = atoi(value);
         return true;
     }
 
@@ -132,20 +136,20 @@ bool process_command_from_master(char *command, char *value)
 
 bool is_pid_p_update_command(char *command)
 {
-    return (command[0] == X && command[1] == P);
+    return (command[0] == ASCII_X && command[1] == ASCII_P);
 }
 
 bool is_pid_i_update_command(char *command)
 {
-    return (command[0] == T && command[1] == I);
+    return (command[0] == ASCII_T && command[1] == ASCII_I);
 }
 
 bool is_pid_d_update_command(char *command)
 {
-    return (command[0] == T && command[1] == D);
+    return (command[0] == ASCII_T && command[1] == ASCII_D);
 }
 
 bool is_set_point_update_command(char * command)
 {
-    return (command[0] == S && command[1] == P);
+    return (command[0] == ASCII_S && command[1] == ASCII_P);
 }

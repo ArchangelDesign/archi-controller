@@ -21,20 +21,20 @@
 
 #include <Arduino.h>
 
-#define P 0x50
-#define S 0x53
-#define V 0x56
-#define O 0x4F
-#define I 0x49
-#define D 0x44
-#define X 0x58
-#define T 0x54
-#define STX 0x02 // Start of Text
-#define ETX 0x03 // End of text
-#define EOT 0x04 // End of Transmission
-#define ENQ 0x05 // Enquiry
-#define ACK 0x06 
-#define NAK 0x15 // Error response
+#define ASCII_P 0x50
+#define ASCII_S 0x53
+#define ASCII_V 0x56
+#define ASCII_O 0x4F
+#define ASCII_I 0x49
+#define ASCII_D 0x44
+#define ASCII_X 0x58
+#define ASCII_T 0x54
+#define ASCII_STX 0x02 // Start of Text
+#define ASCII_ETX 0x03 // End of text
+#define ASCII_EOT 0x04 // End of Transmission
+#define ASCII_ENQ 0x05 // Enquiry
+#define ASCII_ACK 0x06 
+#define ASCII_NAK 0x15 // Error response
 
 #define DOT 0x2E // .
 #define ZERO 0x30 // 0
@@ -43,7 +43,7 @@
 bool has_enq_byte(uint8_t *buffer, uint8_t size)
 {
     for (uint8_t i = 0; i < size; i++) {
-        if (buffer[i] == ENQ) {
+        if (buffer[i] == ASCII_ENQ) {
             return true;
         }
     }
@@ -55,7 +55,7 @@ bool has_enq_byte(uint8_t *buffer, uint8_t size)
 bool has_stx_byte(uint8_t *buffer, uint8_t size)
 {
     for (uint8_t i = 0; i < size; i++) {
-        if (buffer[i] == STX) {
+        if (buffer[i] == ASCII_STX) {
             return true;
         }
     }
@@ -67,7 +67,7 @@ bool has_stx_byte(uint8_t *buffer, uint8_t size)
 bool has_etx_byte(uint8_t *buffer, uint8_t size)
 {
     for (uint8_t i = 0; i < size; i++) {
-        if (buffer[i] == ETX) {
+        if (buffer[i] == ASCII_ETX) {
             return true;
         }
     }
@@ -79,7 +79,7 @@ bool is_single_packet(uint8_t *buffer, uint8_t size)
 {
     uint8_t counter = 0;
     for (uint8_t i = 0; i < size; i++) {
-        if (buffer[i] == ETX) {
+        if (buffer[i] == ASCII_ETX) {
             counter++;
         }
     }
@@ -88,7 +88,7 @@ bool is_single_packet(uint8_t *buffer, uint8_t size)
     }
     counter = 0;
     for (uint8_t i = 0; i < size; i++) {
-        if (buffer[i] == STX) {
+        if (buffer[i] == ASCII_STX) {
             counter++;
         }
     }
@@ -97,7 +97,7 @@ bool is_single_packet(uint8_t *buffer, uint8_t size)
     }
     counter = 0;
     for (uint8_t i = 0; i < size; i++) {
-        if (buffer[i] == EOT) {
+        if (buffer[i] == ASCII_EOT) {
             counter++;
         }
     }
@@ -111,7 +111,7 @@ bool is_single_packet(uint8_t *buffer, uint8_t size)
 uint8_t get_first_eot_index(uint8_t buffer[], uint8_t size)
 {
     for (uint8_t i = 0; i < size; i++) {
-        if (buffer[i] == EOT) {
+        if (buffer[i] == ASCII_EOT) {
             return i;
         }
     }
@@ -121,7 +121,7 @@ uint8_t get_first_eot_index(uint8_t buffer[], uint8_t size)
 uint8_t get_first_etx_index(uint8_t buffer[], uint8_t size)
 {
     for (uint8_t i = 0; i < size; i++) {
-        if (buffer[i] == ETX) {
+        if (buffer[i] == ASCII_ETX) {
             return i;
         }
     }
@@ -132,7 +132,7 @@ uint8_t get_first_etx_index(uint8_t buffer[], uint8_t size)
 uint8_t get_first_enq_index(uint8_t buffer[], uint8_t size)
 {
     for (uint8_t i = 0; i < size; i++) {
-        if (buffer[i] == ENQ) {
+        if (buffer[i] == ASCII_ENQ) {
             return i;
         }
     }

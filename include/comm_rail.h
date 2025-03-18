@@ -29,7 +29,7 @@
 
 uint8_t cr_receive_buffer[MAX_BUFF_SIZE];
 uint8_t cr_receive_buffer_size = 0;
-uint16_t cr_receive_command_count = 0;
+uint16_t cr_received_command_count = 0;
 
 void comm_process_incoming_buffer();
 void comm_send_message(uint8_t* data, uint16_t size);
@@ -79,7 +79,7 @@ void comm_send_message(uint8_t* data, uint16_t size)
 
 void comm_send_text_packet_int16(uint8_t high_byte, uint8_t low_byte, int16_t packet)
 {
-    uint8_t bin_packet[9] = { STX, high_byte, low_byte, DOT, DOT, DOT, DOT, ETX, 0x00 };
+    uint8_t bin_packet[9] = { ASCII_STX, high_byte, low_byte, DOT, DOT, DOT, DOT, ASCII_ETX, 0x00 };
     uint8_t index = 3;
     char buf[5];
     memset(buf, 0, 5);
@@ -97,7 +97,7 @@ void comm_send_text_packet_double(uint8_t high_byte, uint8_t low_byte, double pa
 {
     char buf[5];
     dtostrf(packet, 5, 2, buf);
-    uint8_t bin_packet[9] = { STX, high_byte, low_byte, ZERO, ZERO, ZERO, ZERO, ETX, 0x00 };
+    uint8_t bin_packet[9] = { ASCII_STX, high_byte, low_byte, ZERO, ZERO, ZERO, ZERO, ASCII_ETX, 0x00 };
     memcpy(&bin_packet[3], &buf, 4);
 
     comm_send_message(bin_packet, 9);
@@ -105,42 +105,42 @@ void comm_send_text_packet_double(uint8_t high_byte, uint8_t low_byte, double pa
 
 void comm_send_ack()
 {
-    Serial.write((char*)ACK, 1);
+    Serial.write((char*)ASCII_ACK, 1);
 }
 
 void comm_send_nak()
 {
-    Serial.write((char*)NAK, 1);
+    Serial.write((char*)ASCII_NAK, 1);
 }
 
 void comm_send_pv_update(int16_t temperature)
 {
-    comm_send_text_packet_int16(P, V, temperature);
+    comm_send_text_packet_int16(ASCII_P, ASCII_V, temperature);
 }
 
 void comm_send_sp_update(int16_t temperature)
 {
-    comm_send_text_packet_int16(S, P, temperature);
+    comm_send_text_packet_int16(ASCII_S, ASCII_P, temperature);
 }
 
 void comm_send_op_update(uint8_t power)
 {
-    comm_send_text_packet_int16(O, P, power);
+    comm_send_text_packet_int16(ASCII_O, ASCII_P, power);
 }
 
 void comm_send_pid_p_update(double p)
 {
-    comm_send_text_packet_double(X, P, p);
+    comm_send_text_packet_double(ASCII_X, ASCII_P, p);
 }
 
 void comm_send_pid_i_update(double i)
 {
-    comm_send_text_packet_double(T, I, i);
+    comm_send_text_packet_double(ASCII_T, ASCII_I, i);
 }
 
 void comm_send_pid_d_update(double d)
 {
-    comm_send_text_packet_double(T, D, d);
+    comm_send_text_packet_double(ASCII_T, ASCII_D, d);
 }
 
 void process_enquiry()

@@ -39,3 +39,18 @@ bool timer_read_temperatures(void *)
     msm_zone_a_current_temperature = tc_read_zone_a_temperature();
     return true;
 }
+
+bool timer_adjust_set_points(void *)
+{
+    if (abs(msm_zone_a_set_point - msm_zone_a_target_set_point)) {
+        return true; // HB
+    }
+    if (msm_zone_a_set_point < msm_zone_a_target_set_point) {
+        msm_zone_a_set_point += msm_zone_a_ramp;
+    }
+    if (msm_zone_a_set_point > msm_zone_a_target_set_point) {
+        msm_zone_a_set_point -= msm_zone_a_ramp;
+    }
+
+    return true;
+}

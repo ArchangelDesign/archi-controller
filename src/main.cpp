@@ -33,6 +33,7 @@ void setup() {
     process_timers.every(3000, timer_process_update);
     process_timers.every(HEATER_PERIOD, timer_heater_control);
     process_timers.every(330, timer_read_temperatures);
+    process_timers.every(1000, timer_adjust_set_points);
 }
 
 void loop() {
