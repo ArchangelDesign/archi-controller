@@ -27,6 +27,8 @@
 #define O 0x4F
 #define I 0x49
 #define D 0x44
+#define X 0x58
+#define T 0x54
 #define STX 0x02 // Start of Text
 #define ETX 0x03 // End of text
 #define EOT 0x04 // End of Transmission

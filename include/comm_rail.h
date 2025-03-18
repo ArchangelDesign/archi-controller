@@ -23,11 +23,13 @@
 
 #include "protocol.h"
 #include "measurements.h"
+#include "comm_rail_command.h"
 
 #define MAX_BUFF_SIZE 128
 
 uint8_t cr_receive_buffer[MAX_BUFF_SIZE];
 uint8_t cr_receive_buffer_size = 0;
+uint16_t cr_receive_command_count = 0;
 
 void comm_process_incoming_buffer();
 void comm_send_message(uint8_t* data, uint16_t size);
@@ -50,7 +52,7 @@ void data_received(uint8_t buff[], uint8_t size)
         cr_receive_buffer[index] = buff[i];
         index++;
     }
-    cr_receive_buffer_size = index + 1;
+    cr_receive_buffer_size += size;
 }
 
 void comm_rail_loop()
@@ -106,6 +108,11 @@ void comm_send_ack()
     Serial.write((char*)ACK, 1);
 }
 
+void comm_send_nak()
+{
+    Serial.write((char*)NAK, 1);
+}
+
 void comm_send_pv_update(int16_t temperature)
 {
     comm_send_text_packet_int16(P, V, temperature);
@@ -123,17 +130,17 @@ void comm_send_op_update(uint8_t power)
 
 void comm_send_pid_p_update(double p)
 {
-    comm_send_text_packet_double(P, P, p);
+    comm_send_text_packet_double(X, P, p);
 }
 
 void comm_send_pid_i_update(double i)
 {
-    comm_send_text_packet_double(P, I, i);
+    comm_send_text_packet_double(T, I, i);
 }
 
 void comm_send_pid_d_update(double d)
 {
-    comm_send_text_packet_double(P, D, d);
+    comm_send_text_packet_double(T, D, d);
 }
 
 void process_enquiry()
@@ -142,12 +149,25 @@ void process_enquiry()
     uint8_t end = get_first_enq_index(cr_receive_buffer, cr_receive_buffer_size);
     // shift the buffer
     memmove(&cr_receive_buffer[start], &cr_receive_buffer[end + 1], (cr_receive_buffer_size - (end + 1)) - start);
-    comm_send_ack();
+    // send requested update
+    // Our approach makes the inquiries are redundant since we constantly send
+    // updates via serial connection. The only messages we care about are commands
+    // to change SP and PID values and of course to start/stop/pause the process.    
 }
 
 void process_command()
 {
-
+    uint8_t start = get_first_eot_index(cr_receive_buffer, cr_receive_buffer_size);
+    uint8_t end = get_first_etx_index(cr_receive_buffer, cr_receive_buffer_size);
+    bool result = process_comm_rail_command(&cr_receive_buffer[start], end - start);
+    memmove(&cr_receive_buffer[start], &cr_receive_buffer[end + 1], (cr_receive_buffer_size - (end + 1)) - start);
+    if (result) {
+        comm_send_ack();
+    }
+    if (!result) {
+        comm_send_nak();
+    }
+    cr_received_command_count++;
 }
 
 void comm_process_incoming_buffer()
