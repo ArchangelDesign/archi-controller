@@ -40,9 +40,9 @@ uint8_t get_message_size(uint8_t *buffer, uint8_t size);
 /**
  * Execute on the command sent from the computer
  */
-bool process_command_from_master(char *command, char *value);
+bool process_command_from_master(char *command, char *value, uint8_t address);
 
-bool process_message_body(char *message, uint8_t size);
+bool process_message_body(char *message, uint8_t size, uint8_t addr_high, uint8_t addr_low);
 
 bool is_pid_p_update_command(char *command);
 bool is_pid_i_update_command(char *command);
@@ -83,7 +83,7 @@ bool process_comm_rail_command(uint8_t *buffer, uint8_t size)
     char *message = new char[message_size];
     memcpy(message, &buffer[6], message_size);
 
-    bool result = process_message_body(message, message_size);
+    bool result = process_message_body(message, message_size, addr_high, addr_low);
     free(message);
 
     return result;
@@ -96,20 +96,30 @@ uint8_t get_message_size(uint8_t *buffer, uint8_t size)
     return size - 8;
 }
 
-bool process_message_body(char *message, uint8_t size)
+bool process_message_body(char *message, uint8_t size, uint8_t addr_high, uint8_t addr_low)
 {
     char *command = new char[2];
     char *value = new char[size - 2];
+    char *address = new char[2];
 
-    bool result = process_command_from_master(command, value);
+    command[0] = message[0];
+    command[1] = message[1];
+    address[0] = addr_high;
+    address[1] = addr_low;
+    uint8_t addr = atoi(address);
+
+    memcpy(value, &message[3], size - 2);
+
+    bool result = process_command_from_master(command, value, addr);
 
     free(command);
     free(value);
+    free(address);
 
     return result;
 }
 
-bool process_command_from_master(char *command, char *value)
+bool process_command_from_master(char *command, char *value, uint8_t address)
 {
     if (is_pid_p_update_command(command)) {
         msm_p = atof(value);
